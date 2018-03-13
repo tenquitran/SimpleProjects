@@ -10,12 +10,13 @@ using namespace PhongShadingApp;
 
 
 Scene::Scene()
-	: m_vao{}, m_vbo{}, m_index{}, m_indexCount{}, m_normals{}
+	//: m_vao{}, m_vbo{}, m_index{}, m_indexCount{}, m_normals{}
 {
 }
 
 Scene::~Scene()
 {
+#if 0
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -39,6 +40,7 @@ Scene::~Scene()
 		glBindVertexArray(0);
 		glDeleteVertexArrays(1, &m_vao);
 	}
+#endif
 }
 
 bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
@@ -55,15 +57,32 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 	glClearColor(0.8f, 0.93f, 0.96f, 1.0f);    // very light blue
 	//glClearColor(0.0f, 0.64f, 0.91f, 1.0f);    // light blue
 
+#if 0
+	// Add light source.
+	m_spLight = std::make_unique<LightSourceVisible>(*m_spCamera, 0.05f, glm::vec3(1.0));
+#endif
+
 	// Initialize the program wrapper.
 
 	const ShaderCollection shaders = {
-		{ GL_VERTEX_SHADER,   "shaders\\phong.vert" },
-		{ GL_FRAGMENT_SHADER, "shaders\\phong.frag" }
+		{ GL_VERTEX_SHADER,   "..\\..\\CommonLibOgl\\CommonLibOgl\\shaders\\phong.vert" },
+		{ GL_FRAGMENT_SHADER, "..\\..\\CommonLibOgl\\CommonLibOgl\\shaders\\phong.frag" }
 	};
 
 	m_spProgram = std::make_unique<ProgramGLSL>(shaders);
 
+	// Add first cube.
+	MaterialPhong cubeMat({1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, 32.0f);
+	/*m_spCube*/ m_contents.push_back(std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, 1.0f, cubeMat));
+
+	// TODO: uncomment and make both objects controllable independently.
+#if 0
+	// Add second cube.
+	MaterialPhong cubeMat2({1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, 32.0f);
+	/*m_spCube*/ m_contents.push_back(std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, 1.0f, cubeMat2));
+#endif
+
+#if 0
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 
@@ -186,6 +205,7 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 	// Set light and object colors, respectively.
 	glUniform3f(2, 1.0f, 1.0f, 1.0f);
 	glUniform3f(3, 1.0f, 0.0f, 0.0f);
+#endif
 
 #if 0
 	// Calculate normal to one of our triangles and pass it to the shaders.
@@ -198,7 +218,9 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 	glUniform3fv(3, 1, glm::value_ptr(normal));
 #endif
 
+#if 0
 	glUseProgram(0);
+#endif
 
 	if (!m_spProgram->validate())
 	{
@@ -206,60 +228,64 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 		assert(false); return false;
 	}
 
-	// Add light source.
-	m_spLight = std::make_unique<LightSourceVisible>(*m_spCamera, 0.05f, glm::vec3(1.0));
-
 	return true;
 }
 
 void Scene::updateViewMatrices() const
 {
-	assert(m_spProgram);
-
-	glUseProgram(m_spProgram->getProgram());
-
-	glm::mat4 mvp = m_spCamera->getModelViewProjectionMatrix();
-
-	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
-
-	glm::mat4 modelView = m_spCamera->getModelViewMatrix();
-
-	glUseProgram(0);
+	for (const auto& itr : m_contents)
+	{
+		itr->updateViewMatrices();
+	}
 }
 
 void Scene::translateCameraX(GLfloat diff)
 {
 	m_spCamera->translateX(diff);
+
+	updateViewMatrices();
 }
 
 void Scene::translateCameraY(GLfloat diff)
 {
 	m_spCamera->translateY(diff);
+
+	updateViewMatrices();
 }
 
 void Scene::translateCameraZ(GLfloat diff)
 {
 	m_spCamera->translateZ(diff);
+
+	updateViewMatrices();
 }
 
 void Scene::rotateCameraX(GLfloat angleDegrees)
 {
 	m_spCamera->rotateX(angleDegrees);
+
+	updateViewMatrices();
 }
 
 void Scene::rotateCameraY(GLfloat angleDegrees)
 {
 	m_spCamera->rotateY(angleDegrees);
+
+	updateViewMatrices();
 }
 
 void Scene::rotateCameraZ(GLfloat angleDegrees)
 {
 	m_spCamera->rotateZ(angleDegrees);
+
+	updateViewMatrices();
 }
 
 void Scene::rotateCameraXY(GLfloat xAngleDegrees, GLfloat yAngleDegrees)
 {
 	m_spCamera->rotateXY(xAngleDegrees, yAngleDegrees);
+
+	updateViewMatrices();
 }
 
 GLfloat Scene::getCameraScale() const
@@ -270,19 +296,30 @@ GLfloat Scene::getCameraScale() const
 void Scene::scaleCamera(GLfloat amount)
 {
 	m_spCamera->scale(amount);
+
+	updateViewMatrices();
 }
 
 void Scene::resize(GLfloat aspectRatio)
 {
 	m_spCamera->resize(aspectRatio);
+
+	updateViewMatrices();
 }
 
 void Scene::render() const
 {
-	updateViewMatrices();
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+#if 1
+	//m_spLight->render();
+
+	for (const auto& itr : m_contents)
+	{
+		itr->render();
+	}
+
+#else
 	assert(m_spProgram);
 
 	m_spLight->render();
@@ -298,4 +335,5 @@ void Scene::render() const
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+#endif
 }

@@ -106,10 +106,6 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\phong.frag" />
-    <None Include="shaders\phong.vert" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\CommonLibOgl\CommonLibOgl\CommonLibOgl.vcxproj">
       <Project>{6d7be888-7d66-4caf-8f1d-5d9a9fd093c4}</Project>
     </ProjectReference>
