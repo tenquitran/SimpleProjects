@@ -82,145 +82,43 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 	/*m_spCube*/ m_contents.push_back(std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, 1.0f, cubeMat2));
 #endif
 
-#if 0
-	glGenVertexArrays(1, &m_vao);
-	glBindVertexArray(m_vao);
+	// Set light properties.
 
-	// A cube.
+	GLuint program = m_spProgram->getProgram();
 
-	float side = 1.0f;
-	float side2 = side / 2.0f;
+	glUseProgram(program);
 
-	GLfloat vertices[] = {
-		// Front
-		-side2, -side2, side2,
-		side2, -side2, side2,
-		side2, side2, side2,
-		-side2, side2, side2,
-		// Right
-		side2, -side2, side2,
-		side2, -side2, -side2,
-		side2, side2, -side2,
-		side2, side2, side2,
-		// Back
-		-side2, -side2, -side2,
-		-side2, side2, -side2,
-		side2, side2, -side2,
-		side2, -side2, -side2,
-		// Left
-		-side2, -side2, side2,
-		-side2, side2, side2,
-		-side2, side2, -side2,
-		-side2, -side2, -side2,
-		// Bottom
-		-side2, -side2, side2,
-		-side2, -side2, -side2,
-		side2, -side2, -side2,
-		side2, -side2, side2,
-		// Top
-		-side2, side2, side2,
-		side2, side2, side2,
-		side2, side2, -side2,
-		-side2, side2, -side2
-	};
+	glm::vec3 ambient(0.15f, 0.15f, 0.15f);
+	glm::vec3 diffuse(0.6f, 0.6f, 0.6f);
+	glm::vec3 specular(0.25f, 0.25f, 0.25f);
 
-	// Generate VBO and fill it with the data.
+	GLuint mAmbient = glGetUniformLocation(program, "Light.ambient");
+	if (-1 != mAmbient)
+	{
+		glUniform3fv(mAmbient, 1, glm::value_ptr(ambient));
+	}
 
-	glGenBuffers(1, &m_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, _countof(vertices) * sizeof(vertices[0]), vertices, GL_STATIC_DRAW);
+	GLuint mDiffuse = glGetUniformLocation(program, "Light.diffuse");
+	if (-1 != mDiffuse)
+	{
+		glUniform3fv(mDiffuse, 1, glm::value_ptr(diffuse));
+	}
 
-	// Fill in the vertex position attribute.
-	const GLuint attrVertexPosition = 0;
-	glVertexAttribPointer(attrVertexPosition, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-	glEnableVertexAttribArray(attrVertexPosition);
+	GLuint mSpecular = glGetUniformLocation(program, "Light.specular");
+	if (-1 != mSpecular)
+	{
+		glUniform3fv(mSpecular, 1, glm::value_ptr(specular));
+	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glm::vec4 lightPos(0.0f, 5.0f, 0.0f, 0.0f);
 
-	// Fill the index buffer.
+	GLuint mPosition = glGetUniformLocation(program, "Light.position");
+	if (-1 != mPosition)
+	{
+		glUniform4fv(mPosition, 1, glm::value_ptr(lightPos));
+	}
 
-	GLuint indices[] = {
-		0, 1, 2, 0, 2, 3,
-		4, 5, 6, 4, 6, 7,
-		8, 9, 10, 8, 10, 11,
-		12, 13, 14, 12, 14, 15,
-		16, 17, 18, 16, 18, 19,
-		20, 21, 22, 20, 22, 23
-	};
-
-	m_indexCount = _countof(indices);
-
-	glGenBuffers(1, &m_index);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _countof(indices) * sizeof(indices[0]), indices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	GLfloat normals[] = {
-		// Front
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		// Right
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		// Back
-		0.0f, 0.0f, -1.0f,
-		0.0f, 0.0f, -1.0f,
-		0.0f, 0.0f, -1.0f,
-		0.0f, 0.0f, -1.0f,
-		// Left
-		-1.0f, 0.0f, 0.0f,
-		-1.0f, 0.0f, 0.0f,
-		-1.0f, 0.0f, 0.0f,
-		-1.0f, 0.0f, 0.0f,
-		// Bottom
-		0.0f, -1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		// Top
-		0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f
-	};
-
-	glGenBuffers(1, &m_normals);
-	glBindBuffer(GL_ARRAY_BUFFER, m_normals);
-	glBufferData(GL_ARRAY_BUFFER, _countof(normals) * sizeof(normals[0]), normals, GL_STATIC_DRAW);
-
-	// Fill in the normal attribute.
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-	glEnableVertexAttribArray(1);
-
-	glUseProgram(m_spProgram->getProgram());
-
-	// Set light vector.
-	glm::vec3 lightVector(0.0f, 0.0f, 1.0f);
-	glUniform3fv(1, 1, glm::value_ptr(lightVector));
-
-	// Set light and object colors, respectively.
-	glUniform3f(2, 1.0f, 1.0f, 1.0f);
-	glUniform3f(3, 1.0f, 0.0f, 0.0f);
-#endif
-
-#if 0
-	// Calculate normal to one of our triangles and pass it to the shaders.
-
-	glm::vec3 vectorOne = vertices[0] - vertices[1];
-	glm::vec3 vectorTwo = vertices[2] - vertices[1];
-
-	glm::vec3 normal = glm::cross(vectorOne, vectorTwo);
-
-	glUniform3fv(3, 1, glm::value_ptr(normal));
-#endif
-
-#if 0
 	glUseProgram(0);
-#endif
 
 	if (!m_spProgram->validate())
 	{
