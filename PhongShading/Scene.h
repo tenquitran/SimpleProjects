@@ -46,24 +46,6 @@ namespace PhongShadingApp
 		// OpenGL camera.
 		std::unique_ptr<CommonLibOgl::Camera> m_spCamera;
 
-#if 0
-		GLuint m_vao;
-		GLuint m_vbo;
-
-		GLuint m_index;          // index buffer
-		GLsizei m_indexCount;    // number of indices
-
-		GLuint m_normals;
-#else
-
-		std::vector< std::unique_ptr<CommonLibOgl::Renderable> > m_contents;
-
-		//std::unique_ptr<CommonLibOgl::Cube> m_spCube;
-#endif
-
-		// TODO: uncomment
-#if 0
-		std::unique_ptr<CommonLibOgl::LightSourceVisible> m_spLight;
-#endif
+		std::unique_ptr<CommonLibOgl::Cube> m_spCube;
 	};
 }

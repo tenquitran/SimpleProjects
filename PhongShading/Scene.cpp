@@ -10,37 +10,11 @@ using namespace PhongShadingApp;
 
 
 Scene::Scene()
-	//: m_vao{}, m_vbo{}, m_index{}, m_indexCount{}, m_normals{}
 {
 }
 
 Scene::~Scene()
 {
-#if 0
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	if (0 != m_normals)
-	{
-		glDeleteBuffers(1, &m_normals);
-	}
-
-	if (0 != m_index)
-	{
-		glDeleteBuffers(1, &m_index);
-	}
-
-	if (0 != m_vbo)
-	{
-		glDeleteBuffers(1, &m_vbo);
-	}
-
-	if (0 != m_vao)
-	{
-		glBindVertexArray(0);
-		glDeleteVertexArrays(1, &m_vao);
-	}
-#endif
 }
 
 bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
@@ -54,13 +28,9 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-	glClearColor(0.8f, 0.93f, 0.96f, 1.0f);    // very light blue
-	//glClearColor(0.0f, 0.64f, 0.91f, 1.0f);    // light blue
+	glEnable(GL_MULTISAMPLE);
 
-#if 0
-	// Add light source.
-	m_spLight = std::make_unique<LightSourceVisible>(*m_spCamera, 0.05f, glm::vec3(1.0));
-#endif
+	glClearColor(0.8f, 0.93f, 0.96f, 1.0f);    // very light blue
 
 	// Initialize the program wrapper.
 
@@ -71,16 +41,9 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 
 	m_spProgram = std::make_unique<ProgramGLSL>(shaders);
 
-	// Add first cube.
+	// Add cube.
 	MaterialPhong cubeMat({1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, 32.0f);
-	/*m_spCube*/ m_contents.push_back(std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, 1.0f, cubeMat));
-
-	// TODO: uncomment and make both objects controllable independently.
-#if 0
-	// Add second cube.
-	MaterialPhong cubeMat2({1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, 32.0f);
-	/*m_spCube*/ m_contents.push_back(std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, 1.0f, cubeMat2));
-#endif
+	m_spCube = std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, 1.0f, cubeMat);
 
 	// Set light properties.
 
@@ -131,10 +94,7 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 
 void Scene::updateViewMatrices() const
 {
-	for (const auto& itr : m_contents)
-	{
-		itr->updateViewMatrices();
-	}
+	m_spCube->updateViewMatrices();
 }
 
 void Scene::translateCameraX(GLfloat diff)
@@ -209,29 +169,5 @@ void Scene::render() const
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-#if 1
-	//m_spLight->render();
-
-	for (const auto& itr : m_contents)
-	{
-		itr->render();
-	}
-
-#else
-	assert(m_spProgram);
-
-	m_spLight->render();
-
-	glUseProgram(m_spProgram->getProgram());
-	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index);
-
-	glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glUseProgram(0);
-#endif
+	m_spCube->render();
 }
