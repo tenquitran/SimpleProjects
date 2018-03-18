@@ -5,7 +5,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 using namespace CommonLibOgl;
-using namespace PhongShadingApp;
+using namespace CubemapApp;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		const int ClientHeight = 600;
 
 		// NOTE: window title ID, class ID, icon ID and menu ID were copied from the Visual Studio-generated window code.
-		WindowInfo wndInfo(ClientWidth, ClientHeight, IDS_APP_TITLE, IDC_PHONGSHADING, IDI_PHONGSHADING, IDI_SMALL);
+		WindowInfo wndInfo(ClientWidth, ClientHeight, IDS_APP_TITLE, IDC_CUBEMAP, IDI_CUBEMAP, IDI_SMALL, IDC_CUBEMAP);
 
 		OpenGLInfo openGLInfo(OpenGLVersionMajor, OpenGLVersionMinor, FieldOfView, FrustumNear, FrustumFar);
 
