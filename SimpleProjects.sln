@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhongShading", "PhongShadin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CubeMap", "CubeMap\CubeMap.vcxproj", "{346D849F-D915-437A-BF92-679EE615FFE1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Reflection", "Reflection\Reflection.vcxproj", "{52BD45CA-D28D-47F8-BEE9-FA17083F8B18}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -27,6 +29,10 @@ Global
 		{346D849F-D915-437A-BF92-679EE615FFE1}.Debug|Win32.Build.0 = Debug|Win32
 		{346D849F-D915-437A-BF92-679EE615FFE1}.Release|Win32.ActiveCfg = Release|Win32
 		{346D849F-D915-437A-BF92-679EE615FFE1}.Release|Win32.Build.0 = Release|Win32
+		{52BD45CA-D28D-47F8-BEE9-FA17083F8B18}.Debug|Win32.ActiveCfg = Debug|Win32
+		{52BD45CA-D28D-47F8-BEE9-FA17083F8B18}.Debug|Win32.Build.0 = Debug|Win32
+		{52BD45CA-D28D-47F8-BEE9-FA17083F8B18}.Release|Win32.ActiveCfg = Release|Win32
+		{52BD45CA-D28D-47F8-BEE9-FA17083F8B18}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
