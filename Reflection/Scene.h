@@ -34,8 +34,6 @@ namespace PhongShadingApp
 		void rotateCameraY(GLfloat angleDegrees);
 		void rotateCameraZ(GLfloat angleDegrees);
 
-		void rotateCameraXY(GLfloat xAngleDegrees, GLfloat yAngleDegrees);
-
 		GLfloat getCameraScale() const;
 
 		void scaleCamera(GLfloat amount);
@@ -50,6 +48,14 @@ namespace PhongShadingApp
 		std::unique_ptr<CommonLibOgl::Camera> m_spCamera;
 
 		std::unique_ptr<CommonLibOgl::Cube> m_spCube;
+
+		// Cubemap data.
+
+		GLuint m_vao;
+		GLuint m_vbo;
+
+		GLuint m_index;          // index buffer
+		GLsizei m_indexCount;    // number of indices
 
 		GLuint m_cubemapTexture;
 	};

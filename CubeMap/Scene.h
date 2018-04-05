@@ -4,7 +4,7 @@
 namespace CubemapApp
 {
 	// OpenGL scene.
-	// The cubemap uses vertex, index, normals and texture coordinates from
+	// The cubemap uses vertex, index and normals data from
 	// https://github.com/daw42/glslcookbook/blob/master/ingredients/vbocube.cpp
 	class Scene
 	{

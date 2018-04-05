@@ -10,17 +10,35 @@ using namespace PhongShadingApp;
 
 
 Scene::Scene()
-	: m_cubemapTexture{}
+	: m_vao{}, m_vbo{}, m_index{}, m_indexCount{}, m_cubemapTexture{}
 {
 }
 
 Scene::~Scene()
 {
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 	if (0 != m_cubemapTexture)
 	{
 		glDeleteTextures(1, &m_cubemapTexture);
+	}
+
+	if (0 != m_index)
+	{
+		glDeleteBuffers(1, &m_index);
+	}
+
+	if (0 != m_vbo)
+	{
+		glDeleteBuffers(1, &m_vbo);
+	}
+
+	if (0 != m_vao)
+	{
+		glBindVertexArray(0);
+		glDeleteVertexArrays(1, &m_vao);
 	}
 }
 
@@ -48,53 +66,83 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 
 	m_spProgram = std::make_unique<ProgramGLSL>(shaders);
 
-	// Add cube.
-	MaterialPhong cubeMat({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, 32.0f);
-	m_spCube = std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, 1.0f, cubeMat);
+	// Initialize cubemap data.
 
-#if 0
-	// Set up texture coordinates buffer for the cube.
+	glGenVertexArrays(1, &m_vao);
+	glBindVertexArray(m_vao);
 
-	float texCoords[] = {
+	const float CubemapSide = 2.5f;
+
+	const float HalfSide = CubemapSide / 2.0f;
+
+	float vertices[] = {
 		// Front
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		-HalfSide, -HalfSide, HalfSide,
+		HalfSide, -HalfSide, HalfSide,
+		HalfSide, HalfSide, HalfSide,
+		-HalfSide, HalfSide, HalfSide,
 		// Right
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		HalfSide, -HalfSide, HalfSide,
+		HalfSide, -HalfSide, -HalfSide,
+		HalfSide, HalfSide, -HalfSide,
+		HalfSide, HalfSide, HalfSide,
 		// Back
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		-HalfSide, -HalfSide, -HalfSide,
+		-HalfSide, HalfSide, -HalfSide,
+		HalfSide, HalfSide, -HalfSide,
+		HalfSide, -HalfSide, -HalfSide,
 		// Left
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		-HalfSide, -HalfSide, HalfSide,
+		-HalfSide, HalfSide, HalfSide,
+		-HalfSide, HalfSide, -HalfSide,
+		-HalfSide, -HalfSide, -HalfSide,
 		// Bottom
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f,
+		-HalfSide, -HalfSide, HalfSide,
+		-HalfSide, -HalfSide, -HalfSide,
+		HalfSide, -HalfSide, -HalfSide,
+		HalfSide, -HalfSide, HalfSide,
 		// Top
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f,
-		0.0f, 1.0f };
+		-HalfSide, HalfSide, HalfSide,
+		HalfSide, HalfSide, HalfSide,
+		HalfSide, HalfSide, -HalfSide,
+		-HalfSide, HalfSide, -HalfSide
+	};
 
-	glGenBuffers(1, &m_cubeTexCoords);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_cubeTexCoords);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _countof(texCoords) * sizeof(texCoords[0]), texCoords, GL_STATIC_DRAW);
+	// Set up the vertex buffer.
+
+	glGenBuffers(1, &m_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, _countof(vertices) * sizeof(vertices[0]), vertices, GL_STATIC_DRAW);
+
+	// Fill in the vertex position attribute.
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	GLuint indices[] = {
+		0, 1, 2, 0, 2, 3,
+		4, 5, 6, 4, 6, 7,
+		8, 9, 10, 8, 10, 11,
+		12, 13, 14, 12, 14, 15,
+		16, 17, 18, 16, 18, 19,
+		20, 21, 22, 20, 22, 23
+	};
+
+	// Set up the index buffer.
+
+	m_indexCount = _countof(indices);
+
+	glGenBuffers(1, &m_index);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _countof(indices) * sizeof(indices[0]), indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-	glEnableVertexAttribArray(2);
-#endif
+	// Add cube.
+
+	MaterialPhong cubeMat({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, 32.0f);
+
+	m_spCube = std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, 1.0f, cubeMat);
 
 	// Set light properties.
 
@@ -204,6 +252,20 @@ bool Scene::loadCubemapTextures()
 void Scene::updateViewMatrices() const
 {
 	m_spCube->updateViewMatrices();
+
+	// Update camera matrices for the cubemap.
+
+	assert(m_spProgram->getProgram());
+
+	glUseProgram(m_spProgram->getProgram());
+
+	glm::mat4 view = glm::mat4(glm::mat3(m_spCamera->getViewMatrix()));    // remove translation from the view matrix
+
+	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(m_spCamera->getModelMatrix()));
+	glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(m_spCamera->getProjectionMatrix()));
+
+	glUseProgram(0);
 }
 
 void Scene::translateCameraX(GLfloat diff)
@@ -248,13 +310,6 @@ void Scene::rotateCameraZ(GLfloat angleDegrees)
 	updateViewMatrices();
 }
 
-void Scene::rotateCameraXY(GLfloat xAngleDegrees, GLfloat yAngleDegrees)
-{
-	m_spCamera->rotateXY(xAngleDegrees, yAngleDegrees);
-
-	updateViewMatrices();
-}
-
 GLfloat Scene::getCameraScale() const
 {
 	return m_spCamera->getScale();
@@ -278,5 +333,24 @@ void Scene::render() const
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// Render cubemap.
+
+	glUseProgram(m_spProgram->getProgram());
+
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemapTexture);
+
+	glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glUseProgram(0);
+
+	// Render cube.
 	m_spCube->render();
 }
