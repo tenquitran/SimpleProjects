@@ -199,7 +199,8 @@ bool Scene::loadCubemapTextures()
 
 	glUseProgram(m_spProgram->getProgram());
 
-	glUniform1i(3, 0);
+	//glUniform1i(2, 0);
+	glUniform1i(1, 0);
 
 	glUseProgram(0);
 
@@ -212,13 +213,17 @@ void Scene::updateViewMatrices() const
 
 	glUseProgram(m_spProgram->getProgram());
 
-	glm::mat4 tmp = m_spCamera->getViewMatrix();
-
 	glm::mat4 view = glm::mat4(glm::mat3(m_spCamera->getViewMatrix()));    // remove translation from the view matrix
 
-	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(m_spCamera->getModelMatrix()));
+#if 1
+	glm::mat4 mvp = m_spCamera->getProjectionMatrix() * view * m_spCamera->getModelMatrix();
+	//glm::mat4 mvp = m_spCamera->getProjectionMatrix() * view;
+
+	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
+#else
+	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(m_spCamera->getProjectionMatrix()));
 	glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(m_spCamera->getProjectionMatrix()));
+#endif
 
 	glUseProgram(0);
 }
@@ -288,6 +293,8 @@ void Scene::render() const
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glDepthFunc(GL_LEQUAL);
+
 	glUseProgram(m_spProgram->getProgram());
 
 	glBindVertexArray(m_vao);
@@ -303,4 +310,6 @@ void Scene::render() const
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+
+	glDepthFunc(GL_LESS);
 }

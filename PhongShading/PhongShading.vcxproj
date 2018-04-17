@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../../external/glew-2.0.0/include/;../../external/glm-0.9.8.4/;$(IncludePath)</IncludePath>
-    <LibraryPath>../../external/glew-2.0.0/lib/Release/Win32/;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../external/soil;../../external/glew-2.0.0/include/;../../external/glm-0.9.8.4/;$(IncludePath)</IncludePath>
+    <LibraryPath>../../external/soil/soil/projects/VC9/Debug;../../external/glew-2.0.0/lib/Release/Win32/;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

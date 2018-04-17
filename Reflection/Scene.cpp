@@ -259,11 +259,16 @@ void Scene::updateViewMatrices() const
 
 	glUseProgram(m_spProgram->getProgram());
 
-	glm::mat4 view = glm::mat4(glm::mat3(m_spCamera->getViewMatrix()));    // remove translation from the view matrix
+	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(m_spCamera->getModelViewProjectionMatrix()));
 
-	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(m_spCamera->getModelMatrix()));
-	glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(m_spCamera->getProjectionMatrix()));
+	glm::mat4 view = glm::mat4(glm::mat3(m_spCamera->getViewMatrix()));    // remove translation from the view matrix
+	glm::mat4 modelView = view * m_spCamera->getModelMatrix();
+
+	glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(modelView));
+
+	glm::mat3 normal = glm::mat3(glm::transpose(glm::inverse(modelView)));
+
+	glUniformMatrix3fv(3, 1, GL_FALSE, glm::value_ptr(normal));
 
 	glUseProgram(0);
 }

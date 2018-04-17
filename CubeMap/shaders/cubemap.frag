@@ -2,7 +2,8 @@
 #pragma debug(on)
 #pragma optimize(off)
 
-layout(binding = 3) uniform samplerCube cubeMapTex;
+layout(binding = 1) uniform samplerCube cubeMapTex;
+//layout(binding = 3) uniform samplerCube cubeMapTex;
 
 in vec3 reflectedRay;
 

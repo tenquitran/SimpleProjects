@@ -44,4 +44,9 @@
 #pragma comment(lib, "glu32.lib")
 
 
+// SOIL library.
+#include <soil/src/SOIL.h>
+#pragma comment(lib, "SOIL.lib")
+
+
 #include "../../CommonLibOgl/CommonLibOgl/CommonLibOgl.h"
