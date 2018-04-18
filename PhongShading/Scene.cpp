@@ -22,8 +22,20 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 	// Initial scale factor for the camera.
 	const GLfloat CameraScaleFactor = 1.0f;
 
-	m_spCamera = std::make_unique<Camera>(aspectRatio, CameraScaleFactor,
-		openGlInfo.FieldOfView, openGlInfo.FrustumNear, openGlInfo.FrustumFar);
+#if 1
+	m_spCamera = std::make_unique<Camera>(
+		glm::vec3(0.0f, 0.0f, 5.5f),
+		//glm::vec3(0.0f, 0.0f, 0.45f),
+		//glm::vec3(0.0f, 0.0f, 2.5f),
+		aspectRatio, CameraScaleFactor, openGlInfo.FieldOfView, openGlInfo.FrustumNear, openGlInfo.FrustumFar);
+#else
+	m_spCamera = std::make_unique<Camera>(
+		glm::vec3(0.0f, 0.0f, 3.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f),    // up
+		-90.0f,    // yaw
+		0.0f,    // pitch
+		aspectRatio);
+#endif
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -132,31 +144,39 @@ void Scene::rotateCameraY(GLfloat angleDegrees)
 	updateViewMatrices();
 }
 
+#if 1
 void Scene::rotateCameraZ(GLfloat angleDegrees)
 {
 	m_spCamera->rotateZ(angleDegrees);
 
 	updateViewMatrices();
 }
+#endif
 
+#if 0
 void Scene::rotateCameraXY(GLfloat xAngleDegrees, GLfloat yAngleDegrees)
 {
 	m_spCamera->rotateXY(xAngleDegrees, yAngleDegrees);
 
 	updateViewMatrices();
 }
+#endif
 
+#if 0
 GLfloat Scene::getCameraScale() const
 {
 	return m_spCamera->getScale();
 }
+#endif
 
+#if 1
 void Scene::scaleCamera(GLfloat amount)
 {
 	m_spCamera->scale(amount);
 
 	updateViewMatrices();
 }
+#endif
 
 void Scene::resize(GLfloat aspectRatio)
 {

@@ -82,15 +82,25 @@ LRESULT MainWindow::windowProcDerived(HWND hWnd, UINT message, WPARAM wParam, LP
 			case VK_RIGHT:
 				m_scene.rotateCameraY(2.0f);
 				break;
+			case VK_NUMPAD7:
+				m_scene.rotateCameraZ(-2.0f);
+				break;
+			case VK_NUMPAD4:
+				m_scene.rotateCameraZ(2.0f);
+				break;
+#if 1
 			//////////////////////////////////////////////////////////////////////////
 			// Zoom in/out for the camera.
 			//////////////////////////////////////////////////////////////////////////
 			case VK_NUMPAD0:
-				m_scene.scaleCamera(-0.05f);
+				m_scene.scaleCamera(-0.2f);
+				//m_scene.scaleCamera(-0.05f);
 				break;
 			case VK_NUMPAD1:
-				m_scene.scaleCamera(0.05f);
+				m_scene.scaleCamera(0.2f);
+				//m_scene.scaleCamera(0.05f);
 				break;
+#endif
 			}
 		}
 		break;

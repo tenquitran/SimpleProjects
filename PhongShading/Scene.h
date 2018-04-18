@@ -32,13 +32,22 @@ namespace PhongShadingApp
 
 		void rotateCameraX(GLfloat angleDegrees);
 		void rotateCameraY(GLfloat angleDegrees);
+
+#if 1
 		void rotateCameraZ(GLfloat angleDegrees);
+#endif
 
+#if 0
 		void rotateCameraXY(GLfloat xAngleDegrees, GLfloat yAngleDegrees);
+#endif
 
+#if 0
 		GLfloat getCameraScale() const;
+#endif
 
+#if 1
 		void scaleCamera(GLfloat amount);
+#endif
 
 	private:
 		std::unique_ptr<CommonLibOgl::ProgramGLSL> m_spProgram;
