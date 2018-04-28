@@ -22,19 +22,12 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 	// Initial scale factor for the camera.
 	const GLfloat CameraScaleFactor = 1.0f;
 
-#if 1
-	m_spCamera = std::make_unique<Camera>(
-		glm::vec3(0.0f, 0.0f, 5.5f),
-		//glm::vec3(0.0f, 0.0f, 0.45f),
-		//glm::vec3(0.0f, 0.0f, 2.5f),
-		aspectRatio, CameraScaleFactor, openGlInfo.FieldOfView, openGlInfo.FrustumNear, openGlInfo.FrustumFar);
+#if 0
+	m_spCamera = std::make_unique<Camera>(aspectRatio, 1.0f);
 #else
 	m_spCamera = std::make_unique<Camera>(
-		glm::vec3(0.0f, 0.0f, 3.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f),    // up
-		-90.0f,    // yaw
-		0.0f,    // pitch
-		aspectRatio);
+		glm::vec3(0.0f, 0.0f, 2.5f),
+		aspectRatio, CameraScaleFactor, openGlInfo.FieldOfView, openGlInfo.FrustumNear, openGlInfo.FrustumFar);
 #endif
 
 	glEnable(GL_DEPTH_TEST);
@@ -54,8 +47,16 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 	m_spProgram = std::make_unique<ProgramGLSL>(shaders);
 
 	// Add cube.
-	MaterialPhong cubeMat({1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, 32.0f);
-	m_spCube = std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, 1.0f, cubeMat);
+	glm::vec3 cubePosition(0.2f, 0.1f, 0.0f);
+	MaterialPhong cubeMat({ 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, 32.0f);
+	m_spCube = std::make_unique<Cube>(m_spProgram->getProgram(), *m_spCamera, cubePosition, 1.0f, cubeMat);
+
+	// TODO: temp
+#if 1
+	glm::vec3 planeCenter(0.2f, -0.2f, 0.0f);
+	MaterialPhong planeMat({ 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, 32.0f);
+	m_spPlane = std::make_unique<PlaneHorizontal>(m_spProgram->getProgram(), *m_spCamera, planeCenter, 1.0f, planeMat);
+#endif
 
 	// Set light properties.
 
@@ -104,44 +105,46 @@ bool Scene::initialize(GLfloat aspectRatio, const OpenGLInfo& openGlInfo)
 	return true;
 }
 
-void Scene::updateViewMatrices() const
+void Scene::updateMatrices() const
 {
-	m_spCube->updateViewMatrices();
+	m_spCube->updateMatrices();
+
+	m_spPlane->updateMatrices();
 }
 
 void Scene::translateCameraX(GLfloat diff)
 {
 	m_spCamera->translateX(diff);
 
-	updateViewMatrices();
+	updateMatrices();
 }
 
 void Scene::translateCameraY(GLfloat diff)
 {
 	m_spCamera->translateY(diff);
 
-	updateViewMatrices();
+	updateMatrices();
 }
 
 void Scene::translateCameraZ(GLfloat diff)
 {
 	m_spCamera->translateZ(diff);
 
-	updateViewMatrices();
+	updateMatrices();
 }
 
 void Scene::rotateCameraX(GLfloat angleDegrees)
 {
 	m_spCamera->rotateX(angleDegrees);
 
-	updateViewMatrices();
+	updateMatrices();
 }
 
 void Scene::rotateCameraY(GLfloat angleDegrees)
 {
 	m_spCamera->rotateY(angleDegrees);
 
-	updateViewMatrices();
+	updateMatrices();
 }
 
 #if 1
@@ -149,7 +152,7 @@ void Scene::rotateCameraZ(GLfloat angleDegrees)
 {
 	m_spCamera->rotateZ(angleDegrees);
 
-	updateViewMatrices();
+	updateMatrices();
 }
 #endif
 
@@ -158,7 +161,7 @@ void Scene::rotateCameraXY(GLfloat xAngleDegrees, GLfloat yAngleDegrees)
 {
 	m_spCamera->rotateXY(xAngleDegrees, yAngleDegrees);
 
-	updateViewMatrices();
+	updateMatrices();
 }
 #endif
 
@@ -174,7 +177,7 @@ void Scene::scaleCamera(GLfloat amount)
 {
 	m_spCamera->scale(amount);
 
-	updateViewMatrices();
+	updateMatrices();
 }
 #endif
 
@@ -182,12 +185,13 @@ void Scene::resize(GLfloat aspectRatio)
 {
 	m_spCamera->resize(aspectRatio);
 
-	updateViewMatrices();
+	updateMatrices();
 }
 
 void Scene::render() const
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_spCube->render();
+	//m_spCube->render();
+	m_spPlane->render();
 }

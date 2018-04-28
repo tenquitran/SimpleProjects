@@ -249,9 +249,9 @@ bool Scene::loadCubemapTextures()
 	return true;
 }
 
-void Scene::updateViewMatrices() const
+void Scene::updateMatrices() const
 {
-	m_spCube->updateViewMatrices();
+	m_spCube->updateMatrices();
 
 	// Update camera matrices for the cubemap.
 

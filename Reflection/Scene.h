@@ -16,7 +16,7 @@ namespace PhongShadingApp
 		bool initialize(GLfloat aspectRatio, const CommonLibOgl::OpenGLInfo& openGlInfo);
 
 		// Update Model-View-Projection (MVP) and other matrices in the GLSL program.
-		void updateViewMatrices() const;
+		void updateMatrices() const;
 
 		void resize(GLfloat aspectRatio);
 
